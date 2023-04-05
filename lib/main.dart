@@ -34,7 +34,8 @@ void testit() async {
   // final combined = Rx.combineLatest2(
   //     stream1, stream2, (one, two) => 'One = $one, two = $two');
 
-  final mergerresult = Rx.merge([stream1, stream2]);
+  final mergerresult =
+      Rx.zip2(stream1, stream2, (a, b) => 'Zipped result, A = $a, B = $b');
 
   final result = stream1.concatWith([stream2]);
   //final combined = Rx.concat([stream1, stream2]);
