@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:rxdart/rxdart.dart';
+import 'dart:developer' as devtools show log;
+
+extension Log on Object {
+  void log() => devtools.log(toString());
+}
 
 void main() {
   runApp(const MyApp());
@@ -22,34 +26,49 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends HookWidget {
+void testit() async {
+  final stream1 = Stream.periodic(
+      const Duration(seconds: 1), (count) => 'Stream 1, count = $count');
+  final stream2 = Stream.periodic(
+      const Duration(seconds: 1), (count) => 'Stream 2, count = $count');
+  // final combined = Rx.combineLatest2(
+  //     stream1, stream2, (one, two) => 'One = $one, two = $two');
+
+  final mergerresult = Rx.merge([stream1, stream2]);
+
+  final result = stream1.concatWith([stream2]);
+  //final combined = Rx.concat([stream1, stream2]);
+  // stream1, stream2, (one, two) => 'One = $one, two = $two');
+
+  await for (final value in mergerresult) {
+    value.log();
+  }
+}
+
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    //create a behavior subject every time widget is created
-    final subject = useMemoized(() => BehaviorSubject<String>(), [key]);
-    //destroy a behavior subject every time widget is created
-    useEffect(() => subject.close, [subject]);
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    testit();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: StreamBuilder<String>(
-            stream: subject.stream
-                .distinct()
-                .debounceTime(const Duration(seconds: 1)),
-            initialData: 'Please start typing',
-            builder: (context, snapshot) {
-              return Text(snapshot.requireData);
-            }),
+        title: Text("Home Page"),
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            onChanged: subject.sink.add,
-          ),
-        ),
+            padding: const EdgeInsets.all(8.0), child: Text("Home Page")),
       ),
     );
   }
