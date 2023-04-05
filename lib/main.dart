@@ -26,26 +26,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void testit() async {
-  final stream1 = Stream.periodic(
-      const Duration(seconds: 1), (count) => 'Stream 1, count = $count');
-  final stream2 = Stream.periodic(
-      const Duration(seconds: 1), (count) => 'Stream 2, count = $count');
-  // final combined = Rx.combineLatest2(
-  //     stream1, stream2, (one, two) => 'One = $one, two = $two');
-
-  final mergerresult =
-      Rx.zip2(stream1, stream2, (a, b) => 'Zipped result, A = $a, B = $b');
-
-  final result = stream1.concatWith([stream2]);
-  //final combined = Rx.concat([stream1, stream2]);
-  // stream1, stream2, (one, two) => 'One = $one, two = $two');
-
-  await for (final value in mergerresult) {
-    value.log();
-  }
-}
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -54,23 +34,50 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late final BehaviorSubject<DateTime> subject;
+  late final Stream<String> streamsOfStrings;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    testit();
+    subject = BehaviorSubject<DateTime>();
+    streamsOfStrings = subject.switchMap((dateTime) => Stream.periodic(
+        Duration(seconds: 1),
+        (count) => 'Stream count = $count, datetime = $dateTime'));
+  }
+
+  @override
+  void dispose() {
+    subject.close();
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Home Page"),
-      ),
-      body: Center(
-        child: Padding(
-            padding: const EdgeInsets.all(8.0), child: Text("Home Page")),
-      ),
-    );
+        appBar: AppBar(
+          title: Text("Home Page"),
+        ),
+        body: Column(
+          children: [
+            StreamBuilder<String>(
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final string = snapshot.requireData;
+                  return Text(string);
+                } else {
+                  return const Text("Waiting for the button to be pressed");
+                }
+              },
+              stream: streamsOfStrings,
+            ),
+            TextButton(
+                onPressed: () {
+                  subject.add(DateTime.now());
+                },
+                child: const Text("Start the stream")),
+          ],
+        ));
   }
 }
