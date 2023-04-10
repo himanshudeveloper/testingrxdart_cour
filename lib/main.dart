@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:developer' as devtools show log;
+import 'package:flutter/foundation.dart' show immutable;
 
-extension Log on Object {
-  void log() => devtools.log(toString());
-}
+// extension Log on Object {
+//   void log() => devtools.log(toString());
+// }
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +27,63 @@ class MyApp extends StatelessWidget {
   }
 }
 
+enum TypeOfThing { animal, person }
+
+@immutable
+class Thing {
+  final TypeOfThing type;
+  final String name;
+
+  const Thing({required this.name, required this.type});
+}
+
+@immutable
+class Bloc {
+  final Sink<TypeOfThing?> setTypeOfThing; // write only
+  final Stream<TypeOfThing?> currentTypeofThing; // read only
+  final Stream<Iterable<Thing>> things;
+
+  const Bloc._(
+      {required this.setTypeOfThing,
+      required this.currentTypeofThing,
+      required this.things});
+
+  // write only
+
+  void dispose() {
+    setTypeOfThing.close();
+  }
+
+  factory Bloc({
+    required Iterable<Thing> things,
+  }) {
+    final typeOfThingSubject = BehaviorSubject<TypeOfThing?>();
+    final filteresThings = typeOfThingSubject
+        .debounceTime(const Duration(milliseconds: 300))
+        .map<Iterable<Thing>>((typeofThing) {
+      if (typeofThing != null) {
+        return things.where((thing) => thing.type == typeofThing);
+      } else {
+        return things;
+      }
+    }).startWith(things);
+
+    return Bloc._(
+        setTypeOfThing: typeOfThingSubject.sink,
+        currentTypeofThing: typeOfThingSubject.stream,
+        things: filteresThings);
+  }
+}
+
+const things = [
+  Thing(name: 'foo', type: TypeOfThing.person),
+  Thing(name: 'Bar', type: TypeOfThing.person),
+  Thing(name: 'Baz', type: TypeOfThing.person),
+  Thing(name: 'Bunz', type: TypeOfThing.animal),
+  Thing(name: 'Fluffers', type: TypeOfThing.animal),
+  Thing(name: 'Woofz', type: TypeOfThing.animal),
+];
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -34,50 +92,64 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late final BehaviorSubject<DateTime> subject;
-  late final Stream<String> streamsOfStrings;
+  late final Bloc bloc;
 
   @override
   void initState() {
     super.initState();
-    subject = BehaviorSubject<DateTime>();
-    streamsOfStrings = subject.switchMap((dateTime) => Stream.periodic(
-        Duration(seconds: 1),
-        (count) => 'Stream count = $count, datetime = $dateTime'));
+    bloc = Bloc(things: things);
   }
 
   @override
   void dispose() {
-    subject.close();
-
+    bloc.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Home Page"),
-        ),
-        body: Column(
-          children: [
-            StreamBuilder<String>(
+      appBar: AppBar(
+        title: Text("Filter Chip with rx dart"),
+      ),
+      body: Column(
+        children: [
+          StreamBuilder<TypeOfThing?>(
+              stream: bloc.currentTypeofThing,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final string = snapshot.requireData;
-                  return Text(string);
-                } else {
-                  return const Text("Waiting for the button to be pressed");
-                }
-              },
-              stream: streamsOfStrings,
-            ),
-            TextButton(
-                onPressed: () {
-                  subject.add(DateTime.now());
+                final selectedtypeofthing = snapshot.data;
+                return Wrap(
+                    children: TypeOfThing.values.map((typeOfThing) {
+                  return FilterChip(
+                    label: Text(typeOfThing.name),
+                    onSelected: (selected) {
+                      final type = selected ? typeOfThing : null;
+                      bloc.setTypeOfThing.add(type);
+                    },
+                    selected: selectedtypeofthing == typeOfThing,
+                    selectedColor: Colors.blueAccent,
+                  );
+                }).toList());
+              }),
+          Expanded(
+              child: StreamBuilder(
+            builder: (context, snapshot) {
+              final things = snapshot.data ?? [];
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  final thing = things.elementAt(index);
+                  return ListTile(
+                    title: Text(thing.name),
+                    subtitle: Text(thing.type.name),
+                  );
                 },
-                child: const Text("Start the stream")),
-          ],
-        ));
+                itemCount: things.length,
+              );
+            },
+            stream: bloc.things,
+          ))
+        ],
+      ),
+    );
   }
 }
