@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "1082341905296",
+    "firebase_url": "https://ecommerce-62f75-default-rtdb.firebaseio.com",
+    "project_id": "ecommerce-62f75",
+    "storage_bucket": "ecommerce-62f75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082341905296:android:4b4fda9ee64336a33a9915",
+        "android_client_info": {
+          "package_name": "com.priyemart.priyemart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1082341905296-c2k6cnvonuhi80umgroiagpqenvrj9rp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8BNtNzSTcgLKvGaY1UlUU-cUmTbaRbiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1082341905296-c2k6cnvonuhi80umgroiagpqenvrj9rp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082341905296:android:7e4e7785450eef713a9915",
+        "android_client_info": {
+          "package_name": "com.u6amtech.flutter_grocery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1082341905296-c2k6cnvonuhi80umgroiagpqenvrj9rp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8BNtNzSTcgLKvGaY1UlUU-cUmTbaRbiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1082341905296-c2k6cnvonuhi80umgroiagpqenvrj9rp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082341905296:android:03ac9ab27c020cb53a9915",
+        "android_client_info": {
+          "package_name": "hkapps.testingrxdart_course"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1082341905296-c2k6cnvonuhi80umgroiagpqenvrj9rp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8BNtNzSTcgLKvGaY1UlUU-cUmTbaRbiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1082341905296-c2k6cnvonuhi80umgroiagpqenvrj9rp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
